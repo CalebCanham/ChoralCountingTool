@@ -106,6 +106,18 @@ document.addEventListener('DOMContentLoaded', () => {
     fontInput.value = "Arial";
     fontSize.value = "50";
 
+    const updateNumberTypeControls = () => {
+        const isFraction = typeOfNumberSelect.value === "Fraction"
+        const isDecimal = typeOfNumberSelect.value === "Decimal"
+
+        fractionModeLabel.classList.toggle('hidden', !isFraction)
+        toggleFractionWrapper.classList.toggle('hidden', !isFraction)
+        decimalModeLabel.classList.toggle('hidden', !isDecimal)
+        toggleDecimalWrapper.classList.toggle('hidden', !isDecimal)
+    }
+
+    updateNumberTypeControls()
+
     // ==================================================================================================
     // Event listener that autopopulates relevant fields when a frequent preset is selected
     frequentlyUsedSelect.addEventListener('change', (e) => {
@@ -120,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
         columnsInput.value = cols
         typeOfNumberSelect.selectedIndex = numType + 1
         toggleSwitchMode.checked = !(mode === '+')
+        updateNumberTypeControls()
     })
 
     // ==================================================================================================
@@ -165,21 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==================================================================================================
     // Event listener for updating preview everytime something is edited and all necessary fields are filled
     typeOfNumberSelect.addEventListener('change', (event) => {
-        if (typeOfNumberSelect.value === "Fraction") {
-            fractionModeLabel.classList.remove("hidden")
-            toggleFractionWrapper.classList.remove("hidden")
-        } else if (!(typeOfNumberSelect.value === "Fraction")) {
-            fractionModeLabel.classList.add("hidden")
-            toggleFractionWrapper.classList.add("hidden")
-        }
-
-        if (typeOfNumberSelect.value === "Decimal") {
-            decimalModeLabel.classList.remove("hidden")
-            toggleDecimalWrapper.classList.remove("hidden")
-        } else if (!(typeOfNumberSelect.value === "Decimal")) {
-            decimalModeLabel.classList.add("hidden")
-            toggleDecimalWrapper.classList.add("hidden")
-        }
+        updateNumberTypeControls()
     })
 
     // ==================================================================================================
@@ -207,11 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fractionModeLabel.textContent = 'Fraction Type (Improper)'
         toggleDecimalMode.checked = false
 
-        // Hide fraction-specific controls
-        fractionModeLabel.classList.add('hidden')
-        toggleFractionWrapper.classList.add('hidden')
-        decimalModeLabel.classList.add('hidden')
-        toggleDecimalWrapper.classList.add('hidden')
+        updateNumberTypeControls()
 
         // Clear previews / rendered tables
         document.getElementById('choralTableSetup').innerHTML = ''

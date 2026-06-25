@@ -9,10 +9,9 @@ const generateData = (init, int, op, type, len, frac, dec) => {
     }
     if (type === "Fraction" && frac === "mixed") {
         for(let i = 0; i < arr.length; i++) {
-            let temp = arr[i]
-            if (temp.includes("/")){
-                let tempsplit = temp.split("/")
-                let tempfrac = new Fraction(tempsplit[0], tempsplit[1])
+            const temp = arr[i]
+            if (temp && typeof temp === 'string' && temp.includes("/")) {
+                const tempfrac = Fraction.fromString(temp)
                 arr[i] = tempfrac.toString("mixed")
             }
         }
@@ -62,15 +61,8 @@ const nextData = (current, change, operation, numType, fracType = "improper", de
             break
 
         case "Fraction":
-            
-            if (current.includes("/")) {
-                const currentSplit = current.split("/")
-                current = new Fraction(currentSplit[0], currentSplit[1])
-            }
-            if (change.includes("/")) {
-                const changeSplit = change.split("/")
-                change = new Fraction(changeSplit[0], changeSplit[1])
-            }
+            current = Fraction.fromString(current)
+            change = Fraction.fromString(change)
 
             nextPoint = operation === "+" ? fractionAdd(current, change) : fractionSubtract(current, change)
             break
@@ -98,6 +90,18 @@ const fractionAdd = (frac1, frac2) => {
         frac2 = new Fraction(frac2, 1);
     }
     const newNumerator = frac1.numerator * frac2.denominator + frac2.numerator * frac1.denominator;
+    const newDenominator = frac1.denominator * frac2.denominator;
+    return new Fraction(newNumerator, newDenominator);
+}
+
+const fractionSubtract = (frac1, frac2) => {
+    if (!(frac1 instanceof Fraction)) {
+        frac1 = new Fraction(frac1, 1);
+    }
+    if (!(frac2 instanceof Fraction)) {
+        frac2 = new Fraction(frac2, 1);
+    }
+    const newNumerator = frac1.numerator * frac2.denominator - frac2.numerator * frac1.denominator;
     const newDenominator = frac1.denominator * frac2.denominator;
     return new Fraction(newNumerator, newDenominator);
 }
