@@ -55,12 +55,13 @@ class CustomTable {
     this.direction = "across"; // default direction
   }
 
-  render(containerId, direction = "across", font = "Arial", fontSize = 18) {
+  render(containerId, direction = "across", font = "Arial", fontSize = 18, fractionMode = "improper") {
     this.containerId = containerId;
     this.direction = direction;
     this.revealIndex = 0;
     this.font = font
     this.fontSize = fontSize
+    this.fractionMode = fractionMode
     this._renderTable();
   }
 
@@ -179,22 +180,22 @@ class CustomTable {
           const isFractionString = (typeof raw === 'string') && /\d+\/\d+/.test(raw);
 
           if (isFractionInstance) {
-            const mixed = raw.toString('mixed'); // ensures whole number separated if present
-            if (mixed.includes(' ')) {
-              const [whole, fracPart] = mixed.split(' ');
+            const displayValue = raw.toString(this.fractionMode === 'mixed' ? 'mixed' : 'improper');
+            if (displayValue.includes(' ')) {
+              const [whole, fracPart] = displayValue.split(' ');
               td.innerHTML = makeFractionHTML(whole, fracPart);
-            } else if (mixed.includes('/')) {
-              td.innerHTML = makeFractionHTML('', mixed);
+            } else if (displayValue.includes('/')) {
+              td.innerHTML = makeFractionHTML('', displayValue);
             } else {
-              // whole number only
-              // allow superscript processing if somehow present (though fractions typically don't)
-              td.innerHTML = replaceCaretWithSup(String(mixed));
+              td.innerHTML = replaceCaretWithSup(String(displayValue));
             }
           } else if (isFractionString) {
             const str = String(raw).trim();
-            if (str.includes(' ')) {
+            if (this.fractionMode === 'mixed' && str.includes(' ')) {
               const [whole, fracPart] = str.split(' ');
               td.innerHTML = makeFractionHTML(whole, fracPart);
+            } else if (this.fractionMode === 'mixed' && str.includes('/')) {
+              td.innerHTML = makeFractionHTML('', str);
             } else if (str.includes('/')) {
               td.innerHTML = makeFractionHTML('', str);
             } else {
