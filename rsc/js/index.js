@@ -30,6 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleFractionMode = document.getElementById("toggleFractionMode")
     const toggleFractionWrapper = document.getElementById("toggleFractionWrapper")
 
+    const decimalModeLabel = document.getElementById("decimalModeLabel")
+    const toggleDecimalMode = document.getElementById("toggleDecimalMode")
+    const toggleDecimalWrapper = document.getElementById("toggleDecimalWrapper")
+
     // Font Customization
     const fontInput = document.getElementById("font")
     const fontSize = document.getElementById("font-size")
@@ -136,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for visually updating text for mode toggle
     toggleFractionMode.addEventListener('change', (e) => {
         const checked = e.target.checked
-        fractionModeLabel.textContent = checked ? 'Fraction Type (Improper)' : 'Fraction Type (Mixed)'
+        fractionModeLabel.textContent = checked ? 'Fraction Type (Mixed)' : 'Fraction Type (Improper)'
     })
 
     // ==================================================================================================
@@ -150,17 +154,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             typeOfNumberSelect.value,
                             numRows * numCols,
                             toggleFractionMode.checked ? "mixed" : "improper",
-                            toggleDecimalMode.checked ? true : false)
+                            toggleDecimalMode && toggleDecimalMode.checked ? true : false)
 
         let table = new CustomTable(data, numRows, numCols)
         document.getElementById('choralTableSetup').innerHTML = ''
-        table.render("choralTableSetup", toggleSwitchDirection.checked ? "down" : "across", fontInput.value, fontSize.value)
+        table.render("choralTableSetup", toggleSwitchDirection.checked ? "down" : "across", fontInput.value, fontSize.value, toggleFractionMode.checked ? "mixed" : "improper")
         table.progressiveRender("reveal")
     })
 
     // ==================================================================================================
     // Event listener for updating preview everytime something is edited and all necessary fields are filled
-    typeOfNumberSelect,addEventListener('change', (event) => {
+    typeOfNumberSelect.addEventListener('change', (event) => {
         if (typeOfNumberSelect.value === "Fraction") {
             fractionModeLabel.classList.remove("hidden")
             toggleFractionWrapper.classList.remove("hidden")
@@ -200,11 +204,14 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleSwitchMode.checked = false
         modeLabel.textContent = 'Mode (Increment)'
         toggleFractionMode.checked = false
-        fractionModeLabel.textContent = 'Fraction Type (Mixed)'
+        fractionModeLabel.textContent = 'Fraction Type (Improper)'
+        toggleDecimalMode.checked = false
 
         // Hide fraction-specific controls
         fractionModeLabel.classList.add('hidden')
         toggleFractionWrapper.classList.add('hidden')
+        decimalModeLabel.classList.add('hidden')
+        toggleDecimalWrapper.classList.add('hidden')
 
         // Clear previews / rendered tables
         document.getElementById('choralTableSetup').innerHTML = ''
@@ -223,11 +230,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 toggleSwitchMode.checked ? "-" : "+",
                                 typeOfNumberSelect.value,
                                 numRows * numCols,
-                                toggleFractionMode.checked ? "mixed" : "improper")
+                                toggleFractionMode.checked ? "mixed" : "improper",
+                                toggleDecimalMode && toggleDecimalMode.checked ? true : false)
             
         tablePresent = new CustomTable(data, numRows, numCols)
         choralTablePresent.innerHTML = ''
-        tablePresent.render("choralTablePresent", toggleSwitchDirection.checked ? "down" : "across", fontInput.value, fontSize.value)
+        tablePresent.render("choralTablePresent", toggleSwitchDirection.checked ? "down" : "across", fontInput.value, fontSize.value, toggleFractionMode.checked ? "mixed" : "improper")
         tablePresent.progressiveRender("start")
         presentHeader.textContent = titleInput.value
         presentDiv.classList.remove("hidden")
