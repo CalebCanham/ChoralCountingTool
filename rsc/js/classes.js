@@ -120,9 +120,16 @@ class CustomTable {
       if (typeof value === 'string') {
         const trimmed = value.trim();
         if (/^-?\d+(?:\.\d+)?$/.test(trimmed)) {
-          const numericValue = Number(trimmed);
-          if (Number.isFinite(numericValue)) {
-            return new Intl.NumberFormat('en-US').format(numericValue);
+          const isNegative = trimmed.startsWith('-');
+          const [intPart, fracPart = ''] = trimmed.replace(/^-/, '').split('.');
+          const numericIntPart = Number(intPart);
+
+          if (Number.isFinite(numericIntPart)) {
+            const formattedInt = new Intl.NumberFormat('en-US').format(numericIntPart);
+            if (!fracPart) {
+              return `${isNegative ? '-' : ''}${formattedInt}`;
+            }
+            return `${isNegative ? '-' : ''}${formattedInt}.${fracPart}`;
           }
         }
       }
@@ -233,6 +240,38 @@ class Fraction {
     this.simplify();
   }
 
+  static fromString(value) {
+    if (value instanceof Fraction) return value;
+    if (typeof value !== 'string') {
+      return new Fraction(Number(value), 1);
+    }
+
+    const trimmed = String(value).trim();
+    if (!trimmed) return new Fraction(0, 1);
+
+    const isNegative = trimmed.startsWith('-');
+    const normalized = trimmed.replace(/^-/, '');
+
+    if (normalized.includes(' ')) {
+      const [wholePart, fracPart] = normalized.split(/\s+/);
+      const [numStr, denStr] = (fracPart || '').split('/');
+      const whole = Number(wholePart || 0);
+      const numerator = Number(numStr || 0);
+      const denominator = Number(denStr || 1);
+      const totalNumerator = whole * denominator + numerator;
+      return new Fraction(isNegative ? -totalNumerator : totalNumerator, denominator);
+    }
+
+    if (normalized.includes('/')) {
+      const [numStr, denStr] = normalized.split('/');
+      const numerator = Number(numStr || 0);
+      const denominator = Number(denStr || 1);
+      return new Fraction(isNegative ? -numerator : numerator, denominator);
+    }
+
+    return new Fraction(isNegative ? -Number(normalized) : Number(normalized), 1);
+  }
+
   getNumerator() {
     return this.numerator;
   }
@@ -247,22 +286,20 @@ toString(format = 'improper') {
   }
 
   if (format === 'mixed') {
-    const whole = Math.floor(this.numerator / this.denominator);
-    let remainder = this.numerator % this.denominator;
+    const isNegative = this.numerator < 0;
+    const absNumerator = Math.abs(this.numerator);
+    const absDenominator = Math.abs(this.denominator);
+    const whole = Math.floor(absNumerator / absDenominator);
+    let remainder = absNumerator % absDenominator;
 
     if (remainder === 0) {
-      return `${whole}`; // It's a whole number
+      return `${isNegative ? '-' : ''}${whole}`;
     } else if (whole === 0) {
-      return `${remainder}/${this.denominator}`; // Proper fraction
+      return `${isNegative ? '-' : ''}${remainder}/${absDenominator}`;
     } else {
-      if (whole < 0 || remainder < 0){
-        remainder = Math.abs(remainder)
-      }
-      return `${whole} ${remainder}/${this.denominator}`; // Mixed number
+      return `${isNegative ? '-' : ''}${whole} ${remainder}/${absDenominator}`;
     }
   }
-
-
 
   // Default: improper fraction
   return `${this.numerator}/${this.denominator}`;
